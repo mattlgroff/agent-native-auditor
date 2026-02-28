@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agent Native Auditor
 
-## Getting Started
+Web app to audit whether a site follows key agent-native web principles.
 
-First, run the development server:
+## What it checks
+
+- `/.well-known/agents.json` availability and schema quality
+- `/llms.txt` availability and structure signals
+- Homepage discovery hints (`<link rel="alternate">`, `meta name="agent-capabilities"`)
+- `Accept: text/markdown` support
+- `robots.txt` and `sitemap.xml` coverage
+- JSON-LD structured data presence
+- WebMCP-related HTML tooling signals
+- Optional sitemap-based multi-page crawl coverage
+
+Each check returns:
+
+- pass/warn/fail status
+- evidence from HTTP response and parsed content
+- recommendation for fixing gaps
+- weighted points that roll up into a total score
+- runtime duration and crawl metadata
+- optional per-page sitemap sample diagnostics
+
+## Audit modes
+
+- `single`: homepage-focused audit
+- `sitemap`: crawls `sitemap.xml` URLs (or the sitemap URL listed in `robots.txt`) and computes coverage metrics across sampled pages
+
+Sitemap mode crawls all discovered sitemap URLs by default.
+
+The UI also includes:
+
+- recent run history (stored in localStorage)
+- score delta against previous run for the same domain
+- per-page signal matrix for sitemap samples
+- JSON report download for sharing/debugging
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`POST /api/audit`
 
-## Learn More
+Request body:
 
-To learn more about Next.js, take a look at the following resources:
+```json
+{
+  "url": "https://example.com",
+  "mode": "sitemap"
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`mode` supports `single` or `sitemap`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Optional: include `maxPages` to manually limit sitemap crawl breadth for very large sites.
 
-## Deploy on Vercel
+## One-click Vercel deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repo to GitHub.
+2. Set `NEXT_PUBLIC_GITHUB_REPO_URL` in your Vercel project (see `.env.example`).
+3. Use this clone URL pattern for one-click deploy links:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+https://vercel.com/new/clone?repository-url=https://github.com/<your-org>/agent-native-auditor&project-name=agent-native-auditor&repository-name=agent-native-auditor
+```
+
+The app includes a `Deploy This Auditor` button that uses `NEXT_PUBLIC_GITHUB_REPO_URL` when provided.
+
+The included `vercel.json` sets Next.js framework defaults and standard install/build commands.
+
+## Reference specs and resources
+
+- WebMCP proposal: https://github.com/webmachinelearning/webmcp
+- agents.json spec: https://github.com/wild-card-ai/agents-json
+- markdown-to-agents reference: https://github.com/vercel-labs/markdown-to-agents
