@@ -75,7 +75,7 @@ Optional: include `maxPages` to manually limit sitemap crawl breadth for very la
 3. Use this clone URL pattern for one-click deploy links:
 
 ```text
-https://vercel.com/new/clone?repository-url=https://github.com/<your-org>/agent-native-auditor&project-name=agent-native-auditor&repository-name=agent-native-auditor
+https://vercel.com/new/clone?repository-url=https://github.com/mattlgroff/agent-native-auditor&project-name=agent-native-auditor&repository-name=agent-native-auditor
 ```
 
 The app includes a `Deploy This Auditor` button that uses `NEXT_PUBLIC_GITHUB_REPO_URL` when provided.
